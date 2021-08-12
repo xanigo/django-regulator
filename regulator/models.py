@@ -1,8 +1,6 @@
-from django.db.models import TextField
-
-from fancy.models import SafeDeleteModel, LogFieldsModel
+from django.db.models import Model, TextField
 
 
-class Rule(SafeDeleteModel, LogFieldsModel):
+class Rule(Model):
     rate = TextField()
     regex = TextField(null=False, unique=True)
