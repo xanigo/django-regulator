@@ -1,8 +1,8 @@
 import re
 from typing import Callable, Any, Tuple
 
+from django.http import HttpRequest
 from redis import Redis
-from rest_framework.request import Request
 
 from regulator.models import Rule
 from regulator.settings import REDIS_DB, DEFAULT_CALLS, DEFAULT_PERIOD
@@ -15,7 +15,7 @@ class RegulatorMiddleware:
         self.get_response = get_response
         self.rules = {rule.regex: rule.rate for rule in Rule.objects.all()}
 
-    def get_rate(self, request: Request) -> Tuple[int, int]:
+    def get_rate(self, request: HttpRequest) -> Tuple[int, int]:
         symbols = {
             's': 1,
             'm': 60,
@@ -33,7 +33,7 @@ class RegulatorMiddleware:
 
         return DEFAULT_CALLS, DEFAULT_PERIOD
 
-    def __call__(self, request: Request) -> Any:
+    def __call__(self, request: HttpRequest) -> Any:
         k = f'{request.META.get("REMOTE_ADDR")}:{request.path}:{request.method}'
 
         calls, period = self.get_rate(request)
