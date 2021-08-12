@@ -1,7 +1,7 @@
 import re
 from typing import Callable, Any, Tuple
 
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from redis import Redis
 
 from regulator.models import Rule
@@ -40,7 +40,7 @@ class RegulatorMiddleware:
 
         if counter.exists(k):
             if int(counter.get(k)) >= calls:
-                raise Exception('Too Man requests')
+                return HttpResponse(status=429)
             counter.incr(k)
         else:
             counter.set(k, 1, ex=period)
