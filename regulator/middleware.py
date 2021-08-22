@@ -13,23 +13,12 @@ counter = Redis(db=REDIS_DB, encoding='utf-8')
 class RegulatorMiddleware:
     def __init__(self, get_response: Callable) -> None:
         self.get_response = get_response
-        self.rules = {rule.regex: rule.rate for rule in Rule.objects.all()}
+        self.rules = Rule.objects.all().values()
 
     def get_rate(self, request: HttpRequest) -> Tuple[int, int]:
-        symbols = {
-            's': 1,
-            'm': 60,
-            'h': 3600,
-            'd': 86400,
-            'w': 604800,
-        }
-
-        for regex, rate in self.rules.items():
-            if re.match(regex, f'{request.method} {request.path}'):
-                calls, symbol = rate.split('/')
-                period = symbols[symbol]
-                calls = int(calls)
-                return calls, period
+        for rule in self.rules:
+            if re.match(rule['regex'], f'{request.method} {request.path}'):
+                return rule['calls'], rule['period']
 
         return DEFAULT_CALLS, DEFAULT_PERIOD
 

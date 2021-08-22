@@ -1,6 +1,7 @@
-from django.db.models import Model, TextField
+from django.db.models import Model, TextField, IntegerField
 
 
 class Rule(Model):
-    rate = TextField()
+    calls = IntegerField(null=False)
+    period = IntegerField(null=False)
     regex = TextField(null=False, unique=True)
